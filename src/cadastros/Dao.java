@@ -10,10 +10,10 @@ import com.mysql.cj.jdbc.CallableStatement;
 
 public class Dao {
 	
-	Connection con;
-	PreparedStatement stmt;
-	ResultSet rs;
-	CallableStatement call;
+	Connection con; // Conexão ao banco de dados
+	PreparedStatement stmt; // Acesso a tabela (insert, update, delete, select)
+	ResultSet rs; // Consulta a tabela (select)
+	CallableStatement call; // Procedimentos e funções
 	
 	public void open() throws Exception {
 		String url = "jdbc:mysql://localhost:3306/cadastros";
