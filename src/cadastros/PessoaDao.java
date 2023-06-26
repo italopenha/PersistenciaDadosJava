@@ -1,5 +1,6 @@
 package cadastros;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,15 +17,23 @@ public class PessoaDao extends Dao{
 		close();
 	}
 	
-	public void alterarPessoa(Pessoa p) throws Exception {
+	public boolean alterarPessoa(Pessoa p) throws Exception {
 		open();
-		stmt = con.prepareStatement("UPDATE PESSOA NOME = ?, EMAIL = ? WHERE IDPESSOA = ?");
-		stmt.setString(1, p.getNomePessoa());
-		stmt.setString(2, p.getEmail());
-		stmt.setInt(3, p.getIdPessoa());
-		stmt.execute();
+		stmt = con.prepareStatement("UPDATE PESSOA SET NOMEPESSOA = ?, EMAIL = ? WHERE IDPESSOA = ?");
+		try {
+			stmt.setString(1, p.getNomePessoa());
+			stmt.setString(2, p.getEmail());
+			stmt.setInt(3, p.getIdPessoa());
+			stmt.execute();
+		} catch (SQLException ex) {
+			System.out.println("Erro: " + ex.getMessage() + stmt);
+			stmt.close();
+			close();
+			return false;
+		}
 		stmt.close();
 		close();
+		return true;
 	}
 	
 	public void excluirPessoa(Pessoa p) throws Exception {
@@ -39,6 +48,7 @@ public class PessoaDao extends Dao{
 	public Pessoa consultarPessoaIndividual(int cod) throws Exception {
 		open();
 		stmt = con.prepareStatement("SELECT * FROM PESSOA WHERE IDPESSOA = ?");
+		stmt.setInt(1, cod);
 		rs = stmt.executeQuery();
 		Pessoa p = null;
 		if (rs.next()) {
@@ -46,6 +56,8 @@ public class PessoaDao extends Dao{
 			p.setIdPessoa(rs.getInt("idPessoa"));
 			p.setNomePessoa(rs.getString("nomePessoa"));
 			p.setEmail(rs.getString("email"));
+		} else {
+			System.out.println("Registro não encontrado!");
 		}
 		close();
 		return p;
@@ -54,7 +66,7 @@ public class PessoaDao extends Dao{
 	public List<Pessoa> ListarPessoas() {
 		try {
 			open();
-			stmt = con.prepareStatement("SELECT * FROM PESSOA");
+			stmt = con.prepareStatement("SELECT * FROM PESSOA ORDER BY IDPESSOA");
 			rs = stmt.executeQuery();
 			List<Pessoa> listaPessoas = new ArrayList<>();
 			while (rs.next()) {
